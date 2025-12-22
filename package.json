@@ -1,0 +1,22 @@
+{
+  "name": "aqa-inforce-kostya",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Moeseu/aqa-inforce-kostya.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Moeseu/aqa-inforce-kostya/issues"
+  },
+  "homepage": "https://github.com/Moeseu/aqa-inforce-kostya#readme",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.3"
+  }
+}
