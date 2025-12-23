@@ -24,10 +24,9 @@ To run the tests locally, ensure you have **Node.js** installed.
 
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
+   git clone git@github.com:Moeseu/aqa-inforce-kostya.git
    cd aqa-inforce-kostya
 
-```
 
 2. **Install dependencies:**
 ```bash
