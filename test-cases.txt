@@ -1,0 +1,60 @@
+Test Suite: Hotel Room Booking UI
+Application URL: https://automationintesting.online/
+
+---------------------------------------------------------
+Test Case ID: TC-001
+Title: Verify that a room can be booked with valid data
+Priority: High
+Preconditions:
+1. The user is on the main page.
+2. At least one room is available for booking.
+
+Steps:
+1. Navigate to the target room section.
+2. Click the "Book this room" button to expand the booking form.
+3. Select a valid range of dates (e.g., 2 nights) on the calendar.
+4. Fill in the "First Name" field with valid data (e.g., "Smart").
+5. Fill in the "Last Name" field with valid data (e.g., "Tester").
+6. Fill in the "Email" field with a valid email format.
+7. Fill in the "Phone" field with a valid phone number (11-21 digits).
+8. Click the "Reserve Now" (or "Book") button.
+
+Expected Result:
+1. A confirmation modal/popup is displayed with a success message (e.g., "Booking Successful!").
+2. The booking form closes or resets.
+
+---------------------------------------------------------
+Test Case ID: TC-002
+Title: Verify that a room cannot be booked with invalid data
+Priority: Medium
+Preconditions:
+1. User is on the room page with the booking form open.
+
+Steps:
+1. Select a valid range of dates on the calendar.
+2. Fill in the "First Name" and "Last Name" fields.
+3. Enter an invalid email format in the "Email" field (e.g., "invalid-email" without @).
+4. Leave the "Phone" field empty.
+5. Click the "Reserve Now" (or "Book") button.
+
+Expected Result:
+1. The system does not create a booking.
+2. An error alert is displayed (e.g., "must not be empty", "must be a well-formed email address").
+
+---------------------------------------------------------
+Test Case ID: TC-003
+Title: Verify that previously reserved rooms cannot be rebooked (Unavailable dates)
+Priority: High
+Preconditions:
+1. A booking has already been successfully created for a specific room for a specific date range (as in TC-001).
+2. The user is on the main page.
+
+Steps:
+1. Navigate to the same room that was booked in TC-001.
+2. Click the "Book this room" button.
+3. Attempt to select the EXACT SAME dates that were booked in the previous step.
+4. Observe the calendar behavior and/or try to click "Book".
+
+Expected Result:
+1. The dates should be visually marked as "Unavailable" (crossed out or red) on the calendar.
+2. If the user attempts to force a booking on these dates, an error message "Unavailable" or "Dates not available" should appear, preventing double booking.
