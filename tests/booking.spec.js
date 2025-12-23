@@ -60,6 +60,7 @@ test.describe('UI Automation - Smart Booking', () => {
       return;
     }
 
+    // Перший захід на сайт
     await page.goto('https://automationintesting.online/');
     
     let roomAvailable = false;
@@ -67,15 +68,20 @@ test.describe('UI Automation - Smart Booking', () => {
     const maxAttempts = 5;
 
     while (!roomAvailable && attempts < maxAttempts) {
+      // Отримуємо нові дати з урахуванням зміщення (dateOffset)
       const dates = getDates(dateOffset);
       selectedStartDate = dates.startDate;
       selectedEndDate = dates.endDate;
 
       console.log(`Attempt ${attempts + 1}: Checking dates ${selectedStartDate.toDateString()} - ${selectedEndDate.toDateString()}`);
 
+      // Вибираємо дати
       await selectDates(page, selectedStartDate, selectedEndDate);
 
+      // Натискаємо кнопку перевірки
       await page.getByRole('button', { name: 'Check Availability' }).click();
+      
+      // Чекаємо трохи, щоб результати завантажились
       await page.waitForTimeout(1000);
 
       const bookButtons = page.getByRole('link', { name: 'Book now' });
@@ -92,9 +98,15 @@ test.describe('UI Automation - Smart Booking', () => {
         }
         await page.waitForTimeout(1000);
       } else {
-        console.log('>>> Room taken. Shifting dates by 3 days...');
-        dateOffset += 3;
+        console.log('>>> Room taken. Shifting dates by 3 days and reloading...');
+        
+        // --- ВИПРАВЛЕННЯ ТУТ ---
+        dateOffset += 3; // Зсуваємо дати
         attempts++;
+        
+        // Важливо: Оновлюємо сторінку, щоб скинути попередній вибір календаря!
+        await page.reload(); 
+        await page.waitForLoadState('domcontentloaded');
       }
     }
 
@@ -102,6 +114,7 @@ test.describe('UI Automation - Smart Booking', () => {
       throw new Error(`Could not find available room after ${maxAttempts} attempts.`);
     }
 
+    // Зсуваємо offset для наступного тесту, щоб вони не перетиналися
     dateOffset += 7; 
   });
 
@@ -154,11 +167,11 @@ test.describe('UI Automation - Smart Booking', () => {
     // Варіант А: З'являється червоний напис "Unavailable" прямо на календарі/виділенні
     const unavailableLabel = page.getByText('Unavailable');
     
-    if (await unavailableLabel.isVisible()) {
-        console.log('✓ "Unavailable" label appeared immediately after selection.');
-        await unavailableLabel.click(); // Як у вашому прикладі
-        return; // Тест успішний
-    }
+    // if (await unavailableLabel.isVisible()) {
+    //     console.log('✓ "Unavailable" label appeared immediately after selection.');
+    //     await unavailableLabel.click(); // Як у вашому прикладі
+    //     return; // Тест успішний
+    // }
 
     // Варіант Б: Система дозволяє натиснути "Book", але видає помилку після заповнення форми
     const bookButton = page.getByRole('button', { name: 'Reserve Now' }); // Або 'Book'
