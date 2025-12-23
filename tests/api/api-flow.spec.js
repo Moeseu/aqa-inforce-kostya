@@ -13,56 +13,58 @@ test.describe('API Tests - Inforce Task', () => {
         });
         expect(loginResponse.ok()).toBeTruthy();
 
-        // [ВАЖЛИВО] Витягуємо Cookie (Token) з відповіді сервера
-        const headers = loginResponse.headers();
-        const setCookieHeader = headers['set-cookie'];
-        
-        // Перевіряємо, чи прийшов кукі
-        console.log("Cookie from server:", setCookieHeader);
-        expect(setCookieHeader).toBeDefined();
-
-        // Беремо тільки частину token=... (іноді сервер додає Path, HttpOnly тощо)
-        // Для цього сайту зазвичай достатньо передати весь рядок set-cookie як Cookie
-        const authCookie = setCookieHeader.split(';')[0]; 
+        // Отримуємо токен (з тіла або з куків)
+        const loginBody = await loginResponse.json();
+        let authCookie;
+        if (loginBody.token) {
+            authCookie = `token=${loginBody.token}`;
+        } else {
+            const setCookie = loginResponse.headers()['set-cookie'];
+            if (setCookie) authCookie = setCookie.split(';')[0];
+        }
+        console.log("Auth Cookie:", authCookie);
 
         // --- 2. Створення кімнати ---
+        // Генеруємо унікальне ім'я, щоб точно знайти цю кімнату потім
+        const uniqueRoomName = "Kostya Room " + Date.now();
+
         const roomPayload = {
-            roomName: "Test Room " + Date.now(), 
+            roomName: uniqueRoomName, 
             type: "Single",
             accessible: true,
-            description: "API test creation",
+            description: "Test room for API automation",
             image: "https://www.mwtestconsultancy.co.uk/img/room1.jpg",
-            roomPrice: "123", 
-            features: ["WiFi", "Refreshments"]
+            roomPrice: "555", 
+            features: ["WiFi", "Safe"]
         };
 
         const createResponse = await request.post(`${baseURL}/api/room/`, {
             headers: {
                 'Content-Type': 'application/json',
-                'Cookie': authCookie // <--- ЯВНО передаємо токен тут
+                'Cookie': authCookie
             },
             data: roomPayload
         });
-
-        // Debug: якщо знову 401 або 403, покажемо це
-        if (!createResponse.ok()) {
-            console.log("Create Failed Status:", createResponse.status());
-            console.log("Create Failed Body:", await createResponse.text());
-        }
-
         expect([200, 201]).toContain(createResponse.status());
-        
-        const createdRoom = await createResponse.json();
-        const createdRoomId = createdRoom.roomid;
-        console.log(`Room Created with ID: ${createdRoomId}`);
+        console.log("Room create status:", createResponse.status());
 
-        // --- 3. Перевірка (GET) ---
+        // --- 3. Перевірка і Пошук ID (GET) ---
         const getResponse = await request.get(`${baseURL}/api/room/`);
+        expect(getResponse.ok()).toBeTruthy();
+        
         const data = await getResponse.json();
         
-        const foundRoom = data.rooms.find(r => r.roomid === createdRoomId);
+        // Шукаємо кімнату за нашим УНІКАЛЬНИМ ім'ям
+        const foundRoom = data.rooms.find(r => r.roomName === uniqueRoomName);
         
         expect(foundRoom).toBeDefined();
-        expect(foundRoom.roomName).toBe(roomPayload.roomName);
+        
+        // ТЕПЕР МИ МАЄМО ID!
+        const roomId = foundRoom.roomid;
+        console.log(`SUCCESS! Found Room ID: ${roomId}`);
+        
+        // Перевіряємо дані
+        expect(foundRoom.type).toBe(roomPayload.type);
+        expect(foundRoom.roomPrice).toBe(parseInt(roomPayload.roomPrice));
     });
 });
